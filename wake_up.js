@@ -334,6 +334,12 @@ function shouldWake(lastUserTime) {
 
 function parseTimelineTimestamp(value) {
   const text = String(value || "");
+  const ctMatch = text.match(/<current_time>\s*(\w{3})[ -](\d{2})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/i);
+  if (ctMatch) {
+    const [, , year, month, day, hour, minute] = ctMatch;
+    return zonedWallTimeToDate({ year: `20${year}`, month, day, hour, minute }, TIME_ZONE);
+  }
+
   const match = text.match(/（?\s*(\d{4})([-/])(\d{1,2})\2(\d{1,2})(?:[ T]?)(\d{1,2})[:：](\d{2})/);
   if (!match) return null;
   const [, yyyy, , month, day, hour, minute] = match;
