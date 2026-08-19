@@ -235,16 +235,18 @@ function parseTimestampLabel(value) {
   const text = String(value || "");
   const match = text.match(/（?\s*(\d{4})([-/])(\d{1,2})\2(\d{1,2})(?:[ T]?)(\d{1,2})[:：](\d{2})/);
   if (!match) return null;
+  const ctMatch = text.match(/<current_time>\s*(\w{3})[ -](\d{2})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/i);
+  if (!ctMatch) return null;
+  const [, , year, month, day, hour, minute] = ctMatch;
+  return zonedWallTimeToDate({ year: `20${year}`, month, day, hour, minute }, TIME_ZONE);
+
 
   const [, yyyy, , month, day, hour, minute] = match;
   // 批注 2026-07-30：Kelivo 写进消息前缀的是用户配置时区的墙上时间；
   // 公网/Railway 不能按服务器 UTC 解析，否则时间线和自动唤醒都会被推迟。
   return zonedWallTimeToDate({ year: yyyy, month, day, hour, minute }, TIME_ZONE);
 }
-  const ctMatch = text.match(/<current_time>\s*(\w{3})[ -](\d{2})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/i);
-  if (!ctMatch) return null;
-  const [, , month, day, year, hour, minute] = ctMatch;
-  return zonedWallTimeToDate({ year: `20${year}`, month, day, hour, minute }, TIME_ZONE);
+ 
 
 function stripLeadingTimestamp(content) {
   // 批注 2026-07-15：兼容 Kelivo 有时把日期和时间贴在一起的前缀；
