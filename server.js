@@ -687,6 +687,7 @@ app.post("/v1/chat/completions", async (req, reply) => {
     }
 
     // 按索引从大到小删除，避免索引错乱
+    console.log("UPSTREAM_BODY_START:", JSON.stringify({ ...body, messages: llmMessages }).slice(0, 3000));
     const sortedRemove = Array.from(removeSet).sort((a, b) => b - a);
     for (const idx of sortedRemove) {
       llmMessages.splice(idx, 1);
@@ -699,13 +700,16 @@ app.post("/v1/chat/completions", async (req, reply) => {
     const requestedStream = body?.stream === true;
 
     // 请求模型
+console.log("UPSTREAM_BODY:", JSON.stringify({ ...body, messages: llmMessages }).slice(0, 2000));
+
     const response = await fetch(TARGET_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${process.env.TARGET_API_KEY}`
       },
-      body: JSON.stringify({ ...body, messages: llmMessages })
+            body: JSON.stringify({ ...body, messages: llmMessages, thinking: { type: "disabled" } })
+
     });
 
     const upstreamContentType = response.headers.get("content-type") || "";
