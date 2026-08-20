@@ -611,10 +611,12 @@ ${historyText}`
         try { tl = JSON.parse(require("fs").readFileSync(timelinePath, "utf-8")); } catch {}
       }
       if (!Array.isArray(tl)) tl = [];
-      tl.push({
+          tl.push({
         role: "assistant",
-        content: `（${getLocalTimeString()} 主动弹窗：${safeTitle || ""}｜${safeBody || ""}）`
+        content: `（${getLocalTimeString()} 主动弹窗：${eventContent}）`
       });
+
+
       tl = tl.slice(-60);
       require("fs").writeFileSync(timelinePath, JSON.stringify(tl, null, 2), "utf-8");
       console.log("\n弹窗内容已写入时间线\n");
