@@ -603,6 +603,25 @@ ${historyText}`
     if (!eventResponse.ok) {
       throw new Error(`Gateway 返回 HTTP ${eventResponse.status}`);
     }
+    // 把弹窗内容也写入时间线，让对话里能看到
+    try {
+      const timelinePath = require("path").join(__dirname, "enhanced_messages.json");
+      let tl = [];
+      if (require("fs").existsSync(timelinePath)) {
+        try { tl = JSON.parse(require("fs").readFileSync(timelinePath, "utf-8")); } catch {}
+      }
+      if (!Array.isArray(tl)) tl = [];
+      tl.push({
+        role: "assistant",
+        content: `（${getLocalTimeString()} 主动弹窗：${safeTitle || ""}｜${safeBody || ""}）`
+      });
+      tl = tl.slice(-60);
+      require("fs").writeFileSync(timelinePath, JSON.stringify(tl, null, 2), "utf-8");
+      console.log("\n弹窗内容已写入时间线\n");
+    } catch (e) {
+      console.error("写入时间线失败:", e.message);
+    }
+
     console.log("\n已通过 Gateway 记录唤醒事件\n");
   } catch (err) {
     console.error("\n记录唤醒事件失败（Gateway 是否运行？）:\n", err.message);
