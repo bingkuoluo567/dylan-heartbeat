@@ -543,6 +543,10 @@ ${historyText}`
     // 没有 [NO_ACTION] 就视为想发推送
     console.log("\nAI 选择发送推送\n");
     let barkText = aiText;
+    // 过滤掉系统标签，避免把 <gate> 等内容当推送发出去
+    barkText = barkText.replace(/<gate>[\s\S]*?<\/gate>/gi, "").trim();
+    barkText = barkText.replace(/<[^>]+>/g, "").trim();
+
 
     // 如果 AI 还是写了 [BARK] ... [/BARK] 标签，就剥掉
     const barkMatch = barkText.match(/\[BARK\]([\s\S]*?)\[\/BARK\]/);
